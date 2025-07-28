@@ -1,0 +1,31 @@
+{
+  "name": "proyecto-cine",
+  "version": "1.0.0",
+  "description": "Proyecto académico de arquitectura basada en microservicios para la gestión de un cine.",
+  "main": "index.js",
+  "scripts": {
+    "test": "\"echo \\\"No test specified\\\" && exit 0\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Liceth02usma/Proyecto-CinePlus.git"
+  },
+  "keywords": [
+    "cine",
+    "microservicios",
+    "nodejs",
+    "express",
+    "arquitectura",
+    "backend"
+  ],
+  "author": "Liceth Usma",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Liceth02usma/Proyecto-CinePlus/issues"
+  },
+  "homepage": "https://github.com/Liceth02usma/Proyecto-CinePlus#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^8.16.5"
+  }
+}

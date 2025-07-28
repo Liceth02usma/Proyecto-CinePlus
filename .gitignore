@@ -1,0 +1,35 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# dotenv environment files
+.env
+
+# Optional npm cache directory
+.npm/
+
+# Coverage directory used by testing tools
+coverage/
+
+# Dist or build output
+dist/
+build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+
+# MongoDB dump or data files (si los generas localmente)
+dump/
+*.local
