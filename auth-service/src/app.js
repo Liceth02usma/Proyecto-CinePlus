@@ -1,8 +1,14 @@
 const express = require('express');
+
 const app = express();
-const libraryRoutes = require('./routes/library.routes');
 
 app.use(express.json());
-app.use('/api/library', libraryRoutes);
+app.use(express.urlencoded({ extended: true }));
+
+
+app.get('/', (req, res) => {
+    res.send('Auth Service is running');
+});
+
 
 module.exports = app;

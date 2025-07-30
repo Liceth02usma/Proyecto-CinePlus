@@ -4,7 +4,9 @@
   "description": "Proyecto académico de arquitectura basada en microservicios para la gestión de un cine.",
   "main": "index.js",
   "scripts": {
-    "test": "\"echo \\\"No test specified\\\" && exit 0\""
+    "test": "jest",
+    "start-auth": "node  auth-service/bin/server",
+    "dev-auth": "nodemon auth-service/bin/server"
   },
   "repository": {
     "type": "git",
@@ -27,5 +29,11 @@
   "dependencies": {
     "express": "^5.1.0",
     "mongoose": "^8.16.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "jest": "^30.0.5",
+    "nodemon": "^3.1.10",
+    "supertest": "^7.1.4"
   }
 }
