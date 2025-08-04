@@ -27,7 +27,10 @@
   },
   "homepage": "https://github.com/Liceth02usma/Proyecto-CinePlus#readme",
   "dependencies": {
+    "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "express-graphql": "^0.12.0",
+    "graphql": "^16.11.0",
     "mongoose": "^8.16.5"
   },
   "devDependencies": {

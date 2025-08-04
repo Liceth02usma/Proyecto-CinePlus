@@ -9,6 +9,10 @@ const permissionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  route:{
+    type: String,
+    required: true,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

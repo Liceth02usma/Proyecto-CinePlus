@@ -24,8 +24,8 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String,
-    required: [true, 'El teléfono es obligatorio'],
-    match: [/^\d{10}$/, 'El teléfono debe tener 10 dígitos numéricos']
+    required: [true, "El teléfono es obligatorio"],
+    match: [/^\d{10}$/, "El teléfono debe tener 10 dígitos numéricos"],
   },
   createdAt: {
     type: Date,
@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     required: true,
     default: true,
+  },
+  role: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Role",
+    required: true,
   },
 });
 

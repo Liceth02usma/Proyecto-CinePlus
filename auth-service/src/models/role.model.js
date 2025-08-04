@@ -13,6 +13,13 @@ const roleSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  permissions: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Permission",
+      default: []
+    },
+  ],
 });
 
 module.exports = mongoose.model("Role", roleSchema);

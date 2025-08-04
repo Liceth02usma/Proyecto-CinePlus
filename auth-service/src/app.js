@@ -1,14 +1,16 @@
-const express = require('express');
+const express = require("express");
+const {
+  applyBodyParser,
+} = require("./middlewares/parseRequestBody.middlewares");
+const connectToDatabase = require("./config/db");
+
 
 const app = express();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 
-app.get('/', (req, res) => {
-    res.send('Auth Service is running');
-});
+applyBodyParser(app);
+connectToDatabase();
 
 
 module.exports = app;

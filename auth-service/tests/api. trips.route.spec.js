@@ -1,1 +1,0 @@
-//hacer las pruebas de registro
