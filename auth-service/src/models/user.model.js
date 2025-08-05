@@ -17,10 +17,14 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     match: [/^\S+@\S+\.\S+$/, "Correo inválido"],
   },
-  passwordHash: {
+  password: {
     type: String,
     required: [true, "La contraseña es obligatoria"],
     minlength: [8, "La contraseña debe tener mínimo 8 caracteres"],
+    match: [
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/,
+      "La contraseña debe tener al menos una mayúscula, una minúscula, un número y un carácter especial",
+    ],
   },
   phone: {
     type: String,
@@ -40,6 +44,10 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "Role",
     required: true,
+  },
+  photo: {
+    type: String,
+    default: null,
   },
 });
 
