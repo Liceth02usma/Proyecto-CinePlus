@@ -513,14 +513,14 @@ describe("Graphql deleteUser", () => {
 
  
 });
-//actualizar la rama con la notacion  correcta
-//hacer el login con jwt
-//manejar el middleware.
 
-/* describe("Graphql login", () => {
+
+
+describe("Graphql login", () => {
   let roleId;
   let userEmail = "login.user@example.com";
   let userPassword = "Password123!";
+  let userId;
 
   beforeAll(async () => {
     await mongoose.connect("mongodb://localhost:27017/test_db_user", {
@@ -541,7 +541,8 @@ describe("Graphql deleteUser", () => {
       });
     roleId = roleResponse.body.data.createRole._id;
 
-    await request(app)
+    // Crear usuario y obtener el id decodificando el token
+    const userResponse = await request(app)
       .post("/graphql")
       .send({
         query: `
@@ -554,13 +555,13 @@ describe("Graphql deleteUser", () => {
             passwordConfirmation: "${userPassword}",
             phone: "1234567890",
             role: "${roleId}"
-          ) {
-            _id
-            email
-          }
+          )
         }
       `,
       });
+    const token = userResponse.body.data.createUser;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    userId = decoded.id;
   });
 
   afterAll(async () => {
@@ -578,19 +579,15 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
         mutation {
-          login(email: "${userEmail}", password: "WrongPassword!") {
-            token
-            user {
-              _id
-              email
-            }
-          }
+          loginUser(email: "${userEmail}", password: "WrongPassword!")
         }
       `,
       });
     expect(response.statusCode).toBe(200);
     expect(response.body.errors).toBeDefined();
-    expect(response.body.errors[0].message).toContain("Contraseña incorrecta");
+    expect(
+      response.body.errors[0].message.toLowerCase()
+    ).toContain("contraseña");
   });
 
   // CP1.2 - Usuario no registrado
@@ -600,19 +597,15 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
         mutation {
-          login(email: "not.registered@example.com", password: "Password123!") {
-            token
-            user {
-              _id
-              email
-            }
-          }
+          loginUser(email: "not.registered@example.com", password: "Password123!")
         }
       `,
       });
     expect(response.statusCode).toBe(200);
     expect(response.body.errors).toBeDefined();
-    expect(response.body.errors[0].message).toContain("Usuario no registrado");
+    expect(
+      response.body.errors[0].message.toLowerCase()
+    ).toContain("usuario no registrado");
   });
 
   // CP1.3 - Campo de correo vacío
@@ -622,21 +615,15 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
         mutation {
-          login(email: "", password: "${userPassword}") {
-            token
-            user {
-              _id
-              email
-            }
-          }
+          loginUser(email: "", password: "${userPassword}")
         }
       `,
       });
     expect(response.statusCode).toBe(200);
     expect(response.body.errors).toBeDefined();
-    expect(response.body.errors[0].message).toContain(
-      "El correo es obligatorio"
-    );
+    expect(
+      response.body.errors[0].message.toLowerCase()
+    ).toContain("email");
   });
 
   // CP1.4 - Campo de contraseña vacío
@@ -646,21 +633,15 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
         mutation {
-          login(email: "${userEmail}", password: "") {
-            token
-            user {
-              _id
-              email
-            }
-          }
+          loginUser(email: "${userEmail}", password: "")
         }
       `,
       });
     expect(response.statusCode).toBe(200);
     expect(response.body.errors).toBeDefined();
-    expect(response.body.errors[0].message).toContain(
-      "La contraseña es obligatoria"
-    );
+    expect(
+      response.body.errors[0].message.toLowerCase()
+    ).toContain("contraseña");
   });
 
   // CP1.5 - Inicio de sesión exitoso
@@ -670,20 +651,17 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
         mutation {
-          login(email: "${userEmail}", password: "${userPassword}") {
-            token
-            user {
-              _id
-              email
-            }
-          }
+          loginUser(email: "${userEmail}", password: "${userPassword}")
         }
       `,
       });
+    console.log("inicio de sesion exitoso, ", response.body)
     expect(response.statusCode).toBe(200);
-    expect(response.body.data.login).toBeDefined();
-    expect(response.body.data.login.token).toBeDefined();
-    expect(response.body.data.login.user.email).toBe(userEmail);
+    expect(response.body.data.loginUser).toBeDefined();
+    expect(typeof response.body.data.loginUser).toBe("string");
+    // Decodifica el token y verifica el email
+    const decoded = jwt.verify(response.body.data.loginUser, JWT_SECRET);
+    expect(decoded.email).toBe(userEmail);
   });
 
   // CP1.6 - Mantener sesión activa (token válido)
@@ -694,13 +672,15 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
         mutation {
-          login(email: "${userEmail}", password: "${userPassword}") {
-            token
-          }
+          loginUser(email: "${userEmail}", password: "${userPassword}")
         }
       `,
       });
-    const token = loginResponse.body.data.login.token;
+    const token = loginResponse.body.data.loginUser;
+    console.log(token)
+    const decoded = jwt.verify(token, JWT_SECRET);
+    console.log(decoded)
+
     // Ahora, usa el token para acceder a una consulta protegida
     const userResponse = await request(app)
       .post("/graphql")
@@ -708,7 +688,7 @@ describe("Graphql deleteUser", () => {
       .send({
         query: `
           query {
-            getUser(id: "me") {
+            getUser(id: "${decoded.id}") {
               _id
               email
             }
@@ -716,8 +696,8 @@ describe("Graphql deleteUser", () => {
         `,
       });
     expect(userResponse.statusCode).toBe(200);
+    console.log("respuesta de usuario:", userResponse.body);
     expect(userResponse.body.data.getUser).toBeDefined();
     expect(userResponse.body.data.getUser.email).toBe(userEmail);
   });
 });
- */

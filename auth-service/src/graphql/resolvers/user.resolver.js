@@ -24,6 +24,18 @@ module.exports = {
     }
   },
 
+  getUser: async ({ id }) => {
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        throw new Error("User not found");
+      }
+      return user;
+    } catch (error) {
+      throw new Error("Error fetching user: " + error.message);
+    }
+  },
+
   createUser: async (args) => {
     try {
       // Comprobar si contraseña de confirmación == contraseña
@@ -66,7 +78,7 @@ module.exports = {
         JWT_SECRET,
         { expiresIn: "8h" }
       );
-
+      
       return token;
     } catch (error) {
       console.error("Error creating user:", error);
@@ -138,6 +150,31 @@ module.exports = {
       return user;
     } catch (error) {
       throw new Error("Error deleting user: " + error.message);
+    }
+  },
+
+  loginUser: async (args) => {
+    try {
+      // Normalizar email
+      args.email = args.email.trim().toLowerCase();
+      // Buscar usuario por email
+      const user = await User.findOne({ email: args.email });
+      if (!user) {
+        throw new Error("Error en el email, usuario no registrado");
+      }
+      // Verificar contraseña con bcrypt (¡olvidaste el await!)
+      const valid = await bcrypt.compare(args.password, user.password);
+      if (!valid) {
+        throw new Error("Error en la contraseña");
+      }
+      // Retornar el token JWT
+      return jwt.sign(
+        { id: user._id, email: user.email, role: user.role },
+        JWT_SECRET,
+        { expiresIn: "8h" }
+      );
+    } catch (error) {
+      throw new Error("Error al iniciar sesión: "+error.message);
     }
   },
 };
