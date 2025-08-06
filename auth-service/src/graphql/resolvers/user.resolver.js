@@ -44,6 +44,7 @@ module.exports = {
         );
       }
       // Comprobar si existe usuario con ese email
+      args.email = args.email.trim().toLowerCase();
       const existingUser = await User.findOne({ email: args.email });
       if (existingUser) {
         throw new Error("User with this email already exists");
