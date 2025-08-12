@@ -2,6 +2,7 @@ const User = require("../../models/user.model");
 const Role = require("../../models/role.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { requirePermission } = require("../../helper");
 require("dotenv").config({ path: __dirname + "/../../../.env" });
 const { JWT_SECRET } = process.env;
 // https://www.freecodecamp.org/news/how-to-hash-passwords-with-bcrypt-in-nodejs/
@@ -12,9 +13,10 @@ const isStrongPassword = (p) =>
   ) != -1;
 
 module.exports = {
-  getUsers: async () => {
+  getUsers: async (args, context) => {
     try {
-      const users = await User.find();
+      requirePermission(context.user, "getUsers");
+      const users = await User.find().populate("role");
       if (!users) {
         return [];
       }
@@ -23,9 +25,10 @@ module.exports = {
       throw new Error("Error fetching users: " + error.message);
     }
   },
-
-  getUser: async ({ id }) => {
+  
+  getUser: async ({ id }, context) => {
     try {
+      requirePermission(context.user, "getUser");
       const user = await User.findById(id);
       if (!user) {
         throw new Error("User not found");
@@ -35,10 +38,12 @@ module.exports = {
       throw new Error("Error fetching user: " + error.message);
     }
   },
-
-  createUser: async (args) => {
+  
+  createUser: async (args, context) => {
     try {
       // Comprobar si contraseña de confirmación == contraseña
+ 
+      
       if (args.password !== args.passwordConfirmation) {
         throw new Error("Passwords do not match");
       }
@@ -65,29 +70,30 @@ module.exports = {
       const hashedPassword = await bcrypt.hash(args.password, 10);
       args.password = hashedPassword;
       delete args.passwordConfirmation;
-
+      
       // Crear usuario
       const user = await User.create(args);
-
+      
       if (!user) {
         throw new Error("Error creating user");
       }
-
+      
       const token = jwt.sign(
         { id: user._id, email: user.email, role: user.role },
         JWT_SECRET,
         { expiresIn: "8h" }
       );
-      
+
       return token;
     } catch (error) {
       console.error("Error creating user:", error);
-      throw new Error("Error creating user");
+      throw new Error(error.message || "Error creating user");
     }
   },
 
-  updateUser: async (args) => {
+  updateUser: async (args, context) => {
     try {
+      requirePermission(context.user, "updateUser");
       const user = await User.findById(args.id);
       if (!user) {
         throw new Error("User not found");
@@ -128,7 +134,7 @@ module.exports = {
       const userUpdate = await User.findByIdAndUpdate(args.id, args, {
         new: true,
       });
-
+      
       if (!userUpdate) {
         throw new Error("Error updating user");
       }
@@ -140,8 +146,9 @@ module.exports = {
     }
   },
 
-  deleteUser: async ({ id }) => {
+  deleteUser: async ({ id }, context) => {
     try {
+      requirePermission(context.user, "deleteUser");
       const user = await User.findByIdAndDelete(id);
       if (!user) {
         throw new Error("User not found");
@@ -153,7 +160,7 @@ module.exports = {
     }
   },
 
-  loginUser: async (args) => {
+  loginUser: async (args, context) => {
     try {
       // Normalizar email
       args.email = args.email.trim().toLowerCase();
@@ -174,7 +181,7 @@ module.exports = {
         { expiresIn: "8h" }
       );
     } catch (error) {
-      throw new Error("Error al iniciar sesión: "+error.message);
+      throw new Error("Error al iniciar sesión: " + error.message);
     }
   },
 };
